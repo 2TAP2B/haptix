@@ -1,7 +1,9 @@
 <script lang="ts">
 	import '@haptic/ui/app.web.css';
 	import { Button } from '@haptic/ui/components/button';
+	import { injectAnalytics } from '@vercel/analytics/sveltekit';
 	const currentYear = new Date().getFullYear();
+	injectAnalytics();
 </script>
 
 <svelte:head>

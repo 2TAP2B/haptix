@@ -1,0 +1,6 @@
+services:
+  web:
+    image: ghcr.io/2tap2b/haptix/web:main
+    ports:
+      - "8080:80"
+    restart: unless-stopped

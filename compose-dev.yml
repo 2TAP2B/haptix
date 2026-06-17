@@ -6,5 +6,5 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
     ports:
-      - "8080:80"
+      - "8180:80"
     restart: unless-stopped

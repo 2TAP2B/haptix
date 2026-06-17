@@ -3,17 +3,12 @@ name: 'web-ci'
 on:
   push:
     branches: ['main']
-    paths:
-      - 'apps/web/**'
-      - 'packages/**'
-      - 'pnpm-lock.yaml'
-      - 'turbo.json'
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'LICENSE'
   pull_request:
-    paths:
-      - 'apps/web/**'
-      - 'packages/**'
-      - 'pnpm-lock.yaml'
-      - 'turbo.json'
+    branches: ['main']
 
 jobs:
   build:

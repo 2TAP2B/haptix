@@ -418,6 +418,19 @@ export function createDeviceDetector() {
 	);
 }
 
+export function createMobileStore() {
+	return readable<boolean>(false, (set) => {
+		if (!browser) return;
+
+		const mql = window.matchMedia('(max-width: 768px)');
+		const update = (e: MediaQueryListEvent | MediaQueryList) => set(e.matches);
+
+		update(mql);
+		mql.addEventListener('change', update);
+		return () => mql.removeEventListener('change', update);
+	});
+}
+
 export const sortFileEntry = (a: FileEntry, b: FileEntry): number => {
 	const isDirectory = (file: FileEntry) => file.children != null;
 

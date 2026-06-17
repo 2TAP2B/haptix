@@ -28,7 +28,7 @@
 </script>
 
 <div
-	class="sticky gap-2 min-h-10 top-0 px-3 z-50 flex items-center justify-between w-full bg-secondary-background"
+	class="sticky gap-2 min-h-10 top-0 px-2 md:px-3 z-50 flex items-center justify-between w-full bg-secondary-background"
 >
 	<div class="flex gap-1.5 select-none">
 		<Tooltip
@@ -133,8 +133,8 @@
 			<div class="w-6" />
 		{/if}
 	</div>
-	<div class="flex gap-1.5">
-		<p class="text-xs flex items-center text-muted-foreground fill-muted-foreground">
+	<div class="flex gap-1.5 min-w-0 flex-shrink">
+		<p class="text-xs flex items-center text-muted-foreground fill-muted-foreground truncate max-w-[120px] md:max-w-none">
 			{#if !hideParentDirectories}
 				{#each $activeFile?.replace($collection, '').split('/') ?? [] as folder, i}
 					{#if i !== 0}
@@ -143,7 +143,7 @@
 							variant="ghost"
 							scale="sm"
 							class={cn(
-								'h-6 text-[13px] w-fit px-1.5 fill-muted-foreground hover:fill-foreground transition-all font-normal',
+								'h-6 text-[13px] w-fit px-1 md:px-1.5 fill-muted-foreground hover:fill-foreground transition-all font-normal truncate',
 								i === ($activeFile?.replace($collection, '').split('/') ?? [])?.length - 1 &&
 									'text-foreground font-medium'
 							)}
@@ -151,7 +151,7 @@
 							{folder}
 						</Button>
 						{#if i !== ($activeFile?.replace($collection, '').split('/') ?? [])?.length - 1}
-							<Icon name="chevron" class="w-3.5 h-3.5 inline-block" />
+							<Icon name="chevron" class="w-3 h-3 md:w-3.5 md:h-3.5 inline-block shrink-0" />
 						{/if}
 					{/if}
 				{/each}
@@ -160,7 +160,7 @@
 					size="sm"
 					variant="ghost"
 					scale="sm"
-					class="h-6 text-[13px] w-fit px-1.5 text-foreground transition-all font-medium"
+					class="h-6 text-[13px] w-fit px-1.5 text-foreground transition-all font-medium truncate"
 				>
 					{$activeFile?.replace($collection, '').split('/')?.slice(-1)[0] ?? ''}
 				</Button>

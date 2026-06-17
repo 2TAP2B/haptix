@@ -177,9 +177,10 @@
 	});
 </script>
 
+<!-- Desktop fixed sidebar -->
 <div
 	class={cn(
-		'fixed left-12 h-[calc(100vh-4.5rem)] flex flex-col justify-start items-center bg-background overflow-y-auto transform transition-transform duration-300',
+		'hidden md:flex fixed left-12 h-[calc(100vh-4.5rem)] flex-col justify-start items-center bg-background overflow-y-auto transform transition-transform duration-300',
 		!$isPageSidebarOpen && '-translate-x-52'
 	)}
 	style={`width: ${$pageSidebarWidth}px`}
@@ -194,6 +195,29 @@
 	<!-- Note Entries -->
 	<div
 		class="flex flex-col items-start gap-2 w-full h-full overflow-auto pt-2.5 px-2 pb-2"
+		data-collection-root
+		data-path={$collection + '/.haptic/daily'}
+	>
+		{#if entries.length === 0}
+			<div class="w-full h-full flex flex-col gap-1 items-center justify-center">
+				<Label class="text-muted-foreground text-xs text-center">No daily notes found</Label>
+			</div>
+		{:else}
+			<Entries {entries} />
+		{/if}
+	</div>
+
+	<Calendar
+		bind:value={calValue}
+		class="border-t w-full"
+		onValueChange={(e) => handleOpenCalendarDay(e)}
+	/>
+</div>
+
+<!-- Mobile inline sidebar (rendered inside drawer) -->
+<div class="flex md:hidden flex-col w-full h-full bg-background overflow-y-auto">
+	<div
+		class="flex flex-col items-start gap-2 w-full h-full overflow-auto pt-3 px-3 pb-3"
 		data-collection-root
 		data-path={$collection + '/.haptic/daily'}
 	>

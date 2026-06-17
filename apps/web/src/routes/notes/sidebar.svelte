@@ -173,9 +173,10 @@
 	});
 </script>
 
+<!-- Desktop fixed sidebar -->
 <div
 	class={cn(
-		'fixed left-12 h-[calc(100vh-4.5rem)] flex flex-col justify-start items-center bg-background overflow-y-auto transform transition-transform duration-300',
+		'hidden md:flex fixed left-12 h-[calc(100vh-4.5rem)] flex-col justify-start items-center bg-background overflow-y-auto transform transition-transform duration-300',
 		!$isPageSidebarOpen && '-translate-x-52'
 	)}
 	style={`width: ${$pageSidebarWidth}px`}
@@ -361,6 +362,194 @@
 	<!-- Set y paddings here instead of in the parent as gap so scrollbar is not affected -->
 	<div
 		class="flex flex-col items-start gap-1 w-full px-2 h-full overflow-auto pt-2 pb-4"
+		data-collection-root
+		data-path={$collection}
+	>
+		{#if $collectionSearchActive}
+			<SearchResults
+				{results}
+				query={searchValue}
+				searchSettings={{ caseSensitive, wholeWord }}
+				loading={searchLoading}
+			/>
+		{:else}
+			{#if entries.length === 0}
+				<div class="w-full h-full flex flex-col gap-1 items-center justify-center">
+					<Label class="text-muted-foreground text-xs text-center">No notes found</Label>
+				</div>
+			{/if}
+			<Entries {entries} bind:toggleFolderStates bind:toggleState={folderToggleState} />
+		{/if}
+	</div>
+</div>
+
+<!-- Mobile inline sidebar (rendered inside drawer) -->
+<div class="flex md:hidden flex-col w-full h-full bg-background overflow-y-auto">
+	<!-- Controls -->
+	<div class="relative top-0 flex flex-col min-h-10 w-full border-b bg-background overflow-hidden">
+		<div
+			class={cn(
+				'flex flex-row items-center justify-center w-full h-full px-3.5 gap-2 shrink-0 transform transition-all translate-y-0',
+				$collectionSearchActive && '-translate-y-12'
+			)}
+		>
+			<Tooltip text="New note" side="bottom" shortcut={SHORTCUTS['notes:create']}>
+				<Button
+					size="icon"
+					variant="ghost"
+					scale="md"
+					class="h-8 w-8 fill-muted-foreground hover:fill-foreground transition-all"
+					on:click={async () => createNote($collection)}
+				>
+					<Shortcut options={SHORTCUTS['notes:create']} />
+					<Icon name="notePlus" class="w-[18px] h-[18px]" />
+				</Button>
+			</Tooltip>
+			<Tooltip text="New folder" side="bottom" shortcut={SHORTCUTS['notes:create-folder']}>
+				<Button
+					size="icon"
+					variant="ghost"
+					scale="md"
+					class="h-8 w-8 fill-muted-foreground hover:fill-foreground transition-all"
+					on:click={async () => createFolder($collection)}
+				>
+					<Shortcut options={SHORTCUTS['notes:create-folder']} />
+					<Icon name="folderPlus" class="w-[18px] h-[18px]" />
+				</Button>
+			</Tooltip>
+			<Tooltip
+				text={folderToggleState === 'collapse' ? 'Collapse folders' : 'Expand folders'}
+				side="bottom"
+			>
+				<Button
+					size="icon"
+					variant="ghost"
+					scale="md"
+					class="h-8 w-8 fill-muted-foreground hover:fill-foreground"
+					on:click={async () => {
+						toggleFolderStates();
+					}}
+				>
+					<Icon
+						name="collapseCircle"
+						class={cn(
+							'w-[18px] h-[18px] transition-all transform',
+							folderToggleState === 'collapse' && 'hidden'
+						)}
+					/>
+					<Icon
+						name="expandCircle"
+						class={cn(
+							'w-[18px] h-[18px] transition-all transform',
+							folderToggleState === 'expand' && 'hidden'
+						)}
+					/>
+				</Button>
+			</Tooltip>
+			<Tooltip text="Search" side="bottom" shortcut={SHORTCUTS['notes:search']}>
+				<Button
+					size="icon"
+					variant="ghost"
+					scale="md"
+					class="h-8 w-8 fill-muted-foreground hover:fill-foreground transition-all"
+					on:click={() => {
+						collectionSearchActive.set(!$collectionSearchActive);
+					}}
+				>
+					<Shortcut options={SHORTCUTS['notes:search']} />
+					<Icon name="searchBars" class="w-[18px] h-[18px]" />
+				</Button>
+			</Tooltip>
+		</div>
+		<!-- Search -->
+		<div
+			class={cn(
+				'absolute pb-[0.5px] flex flex-row items-center justify-center w-full h-full px-[5px] gap-1 shrink-0 transform transition-all translate-y-12',
+				$collectionSearchActive && 'translate-y-0'
+			)}
+		>
+			<div
+				class="rounded-md w-full flex items-center justify-start bg-background pl-2 pr-1 gap-0.5 border focus-within:ring-1 focus-within:ring-ring transition-all"
+			>
+				<input
+					id="notesSearchMobile"
+					class="w-full bg-transparent outline-none placeholder:text-muted-foreground h-[38px] text-[15px]"
+					type="text"
+					placeholder="Search"
+					autocomplete="off"
+					autocorrect="off"
+					bind:value={searchValue}
+					on:keydown={(e) => {
+						clearTimeout(searchDebounce);
+						searchDebounce = setTimeout(() => {
+							searchCollection();
+						}, 500);
+						if (e.key === 'Enter') {
+							clearTimeout(searchDebounce);
+							searchCollection();
+						}
+						if (e.key === 'Escape') {
+							closeSearch();
+						}
+					}}
+				/>
+				<Tooltip text="Case sensitive" side="bottom">
+					<Button
+						size="icon"
+						variant="ghost"
+						scale="md"
+						class="h-8 w-7 shrink-0 group hover:bg-transparent"
+						on:click={() => {
+							caseSensitive = !caseSensitive;
+							searchCollection();
+						}}
+					>
+						<ALargeSmall
+							class={cn(
+								'w-[18px] h-[18px] stroke-muted-foreground group-hover:stroke-foreground transition-all stroke-[1.5px]',
+								caseSensitive ? 'stroke-foreground' : ''
+							)}
+						/>
+					</Button>
+				</Tooltip>
+				<Tooltip text="Whole word" side="bottom">
+					<Button
+						size="icon"
+						variant="ghost"
+						scale="md"
+						class="h-8 w-7 shrink-0 group hover:bg-transparent"
+						on:click={() => {
+							wholeWord = !wholeWord;
+							searchCollection();
+						}}
+					>
+						<WholeWord
+							class={cn(
+								'w-4 h-4 stroke-muted-foreground group-hover:stroke-foreground transition-all stroke-[1.5px]',
+								wholeWord ? 'stroke-foreground' : ''
+							)}
+						/>
+					</Button>
+				</Tooltip>
+				<Tooltip text="Close" side="bottom" shortcut={SHORTCUTS['notes:search']}>
+					<Button
+						size="icon"
+						variant="ghost"
+						scale="md"
+						class="h-8 w-7 group shrink-0 transition-all hover:bg-transparent fill-muted-foreground hover:fill-foreground"
+						on:click={() => {
+							closeSearch();
+						}}
+					>
+						<Icon name="x" class="w-4 h-4" />
+					</Button>
+				</Tooltip>
+			</div>
+		</div>
+	</div>
+
+	<div
+		class="flex flex-col items-start gap-1 w-full px-3 h-full overflow-auto pt-3 pb-4"
 		data-collection-root
 		data-path={$collection}
 	>

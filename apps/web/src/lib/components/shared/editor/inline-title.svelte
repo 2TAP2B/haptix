@@ -56,7 +56,7 @@
 
 <div
 	class={cn(
-		'flex items-center w-full h-fit px-8 pb-2.5',
+		'flex items-center w-full h-fit px-4 md:px-8 pb-2.5',
 		!$collectionSettings.editor.show_toolbar && 'mt-5'
 	)}
 >
@@ -68,9 +68,9 @@
 			autocorrect="off"
 			disabled={$editorMode !== 'edit'}
 			class={cn(
-				'w-[655px] prose font-bold text-4xl text-foreground mx-auto bg-transparent focus:outline-none',
+				'w-full md:w-[655px] prose font-bold text-2xl md:text-4xl text-foreground mx-auto bg-transparent focus:outline-none',
 				// Safari / Webkit for some reason has a smaller editor width so we need to adjust
-				/^((?!chrome|android).)*safari/i.test(navigator.userAgent) && 'w-[635px]'
+				/^((?!chrome|android).)*safari/i.test(navigator.userAgent) && 'md:w-[635px]'
 			)}
 			on:keydown={handleKeydown}
 			on:blur={handleBlur}

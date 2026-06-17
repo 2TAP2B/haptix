@@ -4,7 +4,7 @@
 </script>
 
 <header
-	class="absolute top-0 w-full flex justify-between items-center h-9 border-b pl-20 bg-background z-40 px-1.5"
+	class="hidden md:flex absolute top-0 w-full justify-between items-center h-9 border-b pl-20 bg-background z-40 px-1.5"
 >
 	<div />
 	<p

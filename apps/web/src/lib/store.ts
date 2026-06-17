@@ -33,6 +33,12 @@ export const settingsStore = writable<SettingsStateParams>({
 	activePage: 'general'
 });
 
+// Mobile-specific stores
+const isMobile = writable<boolean>(false);
+const mobileView = writable<'files' | 'editor' | 'details'>('files');
+const mobileSidebarOpen = writable<boolean>(false);
+const mobileDetailsOpen = writable<boolean>(false);
+
 const appSettings = writable<AppSettingsParams>(BASE_APP_SETTINGS);
 const collectionSettings = writable<CollectionSettingsParams>(BASE_COLLECTION_SETTINGS);
 
@@ -47,8 +53,12 @@ export {
 	editorMode,
 	editorSearchActive,
 	editorSearchValue,
+	isMobile,
 	isNoteDetailSidebarOpen,
 	isPageSidebarOpen,
+	mobileDetailsOpen,
+	mobileSidebarOpen,
+	mobileView,
 	noteDetailSidebarWidth,
 	noteHistory,
 	pageSidebarWidth,

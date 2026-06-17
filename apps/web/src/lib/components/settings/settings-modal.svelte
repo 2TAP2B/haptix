@@ -62,7 +62,7 @@
 		</Button>
 	</Dialog.Trigger>
 	<Dialog.Content
-		class="flex items-center justify-center !w-[90%] !h-[90%] !top-[5%] !right-[5%] !bottom-[5%] !left-[5%] pt-16"
+		class="flex items-center justify-center !w-[100%] md:!w-[90%] !h-[100%] md:!h-[90%] !top-0 md:!top-[5%] !right-0 md:!right-[5%] !bottom-0 md:!bottom-[5%] !left-0 md:!left-[5%] pt-14 md:pt-16"
 	>
 		<Tabs.Root
 			value={activePage}
@@ -72,43 +72,44 @@
 					return store;
 				});
 			}}
-			class="flex items-center justify-center h-full w-full gap-10"
+			class="flex flex-col md:flex-row items-center justify-center h-full w-full gap-2 md:gap-10 px-2 md:px-0"
 		>
 			<!-- Categories as label, rest as tabtrigger & corresponding content -->
-			<div class="flex flex-col items-center gap-4 h-full justify-start min-w-[160px]">
+			<div class="flex md:flex-col items-center gap-4 h-fit md:h-full justify-start min-w-[160px] overflow-x-auto md:overflow-x-visible w-full md:w-auto px-2 md:px-0">
 				{#each Object.keys(settings) as setting}
-					<div class="flex flex-col items-start gap-2 w-full">
-						<Label class="text-foreground/70 text-xs pl-2">
+					<div class="flex flex-row md:flex-col items-start gap-2 w-full">
+						<Label class="text-foreground/70 text-xs pl-2 hidden md:block">
 							{setting}
 						</Label>
 						<Tabs.List
-							class="flex items-center justify-start flex-col w-full h-fit bg-transparent p-0 gap-1.5"
+							class="flex items-center justify-start flex-row md:flex-col w-full h-fit bg-transparent p-0 gap-1"
 						>
 							{#each settings[setting] as tab}
 								<Tabs.Trigger
 									value={tab.name.toLocaleLowerCase()}
-									class="w-full h-7 rounded-lg px-3 hover:bg-accent hover:text-accent-foreground transition-transform active:scale-[98%] data-[state=active]:bg-accent text-foreground data-[state=active]:fill-foreground fill-muted-foreground/80 text-foreground/70 hover:fill-foreground items-center justify-start gap-2 text-sm font-normal"
+									class="w-fit md:w-full h-8 rounded-lg px-3 hover:bg-accent hover:text-accent-foreground transition-transform active:scale-[98%] data-[state=active]:bg-accent text-foreground data-[state=active]:fill-foreground fill-muted-foreground/80 text-foreground/70 hover:fill-foreground items-center justify-start gap-2 text-sm font-normal"
 								>
-									<Icon name={tab.icon} class="w-4 h-4" />
-									{tab.name}
+									<Icon name={tab.icon} class="w-4 h-4 shrink-0" />
+									<span class="hidden md:inline">{tab.name}</span>
+									<span class="md:hidden text-xs">{tab.name}</span>
 								</Tabs.Trigger>
 							{/each}
 						</Tabs.List>
 					</div>
 					{#if setting !== Object.keys(settings)[Object.keys(settings).length - 1]}
-						<Separator />
+						<Separator class="hidden md:block" />
 					{/if}
 				{/each}
 			</div>
-			<div class="flex flex-col items-center justify-center gap-2 h-full w-2/4">
+			<div class="flex flex-col items-center justify-center gap-2 h-full w-full md:w-2/4 overflow-hidden">
 				{#each Object.keys(settings) as setting}
 					{#each settings[setting] as tab}
 						<Tabs.Content
 							value={tab.name.toLocaleLowerCase()}
-							class="w-full h-full -mt-2.5 overflow-y-auto pb-10"
+							class="w-full h-full -mt-2.5 overflow-y-auto pb-24 md:pb-10"
 						>
-							<div class="flex flex-col items-start justify-start h-full w-full gap-3 px-1">
-								<h1 class="text-lg font-medium">{tab.name}</h1>
+							<div class="flex flex-col items-start justify-start h-full w-full gap-3 px-1 md:px-2">
+								<h1 class="text-base md:text-lg font-medium">{tab.name}</h1>
 								<svelte:component this={tab.content} />
 							</div>
 						</Tabs.Content>

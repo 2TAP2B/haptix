@@ -11,7 +11,7 @@
 </script>
 
 <div
-	class="relative flex flex-col w-full h-full min-h-[calc(100vh-4.5rem)] items-start bg-secondary-background overflow-y-auto"
+	class="relative flex flex-col w-full h-full min-h-[calc(100vh-10rem)] md:min-h-[calc(100vh-4.5rem)] items-start bg-secondary-background overflow-y-auto"
 >
 	{#if $collectionSettings.editor.show_toolbar}
 		<EditorToolbar />
@@ -23,11 +23,10 @@
 			$activeFile !== null && 'hidden'
 		)}
 	>
-		<div class="flex flex-col items-center justify-center w-full h-full -mt-10">
-			<!-- Row with following options: Open collection, create note -->
+		<div class="flex flex-col items-center justify-center w-full h-full -mt-10 px-4">
 			<div class="flex flex-col items-center gap-2">
 				<p class="text-secondary-foreground/85">Select a note to start editing</p>
-				<div class="flex gap-5">
+				<div class="flex flex-col md:flex-row gap-3 md:gap-5">
 					<button
 						class="text-sm gap-1.5 flex text-muted-foreground hover:text-secondary-foreground transition-colors items-center justify-center"
 						on:click={() => {

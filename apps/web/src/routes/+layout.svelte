@@ -2,21 +2,29 @@
 	import migrations from '$lib/database/migrations/migrations.sql?raw';
 	import seed from '$lib/database/migrations/seed.sql?raw';
 	import { loadSettings } from '@/api/settings';
-	import Footer from '@/components/layout/footer.svelte';
-	import Header from '@/components/layout/header.svelte';
-	import Sidebar from '@/components/layout/sidebar.svelte';
-	import Command from '@/components/shared/command-menu/command.svelte';
-	import Icon from '@/components/shared/icon.svelte';
-	import { db, pgClient } from '@/database/client';
-	import { collection as collectionTable } from '@/database/schema';
-	import { collection } from '@/store';
-	import { createDeviceDetector } from '@/utils';
+import Footer from '@/components/layout/footer.svelte';
+import Header from '@/components/layout/header.svelte';
+import Sidebar from '@/components/layout/sidebar.svelte';
+import MobileNav from '@/components/layout/mobile-nav.svelte';
+import Command from '@/components/shared/command-menu/command.svelte';
+import Icon from '@/components/shared/icon.svelte';
+import { db, pgClient } from '@/database/client';
+import { collection as collectionTable } from '@/database/schema';
+import {
+	collection,
+	isMobile,
+	mobileSidebarOpen,
+	mobileView,
+	activeFile
+} from '@/store';
+	import { createDeviceDetector, createMobileStore } from '@/utils';
 	import '@haptic/ui/app.web.css';
 	import { ModeWatcher } from 'mode-watcher';
 	import { onMount } from 'svelte';
 
 	// Device detector
 	const device = createDeviceDetector();
+	const mobile = createMobileStore();
 
 	// Migrate database
 	async function migrateDatabase() {
@@ -55,6 +63,16 @@
 		// Load app & collection settings
 		loadSettings(true, true);
 	});
+
+	// Sync isMobile store with media query
+	$: isMobile.set($mobile);
+
+	// Auto-switch to editor view when a file is selected on mobile
+	$: if ($isMobile && $activeFile) {
+		mobileView.set('editor');
+	} else if ($isMobile && !$activeFile) {
+		mobileView.set('files');
+	}
 </script>
 
 <svelte:head>
@@ -108,26 +126,85 @@
 	{/if}
 </svelte:head>
 
-{#if $device.isDesktop}
-	<Command />
-	<ModeWatcher />
+<Command />
+<ModeWatcher />
+
+<!-- Desktop layout -->
+<div class="hidden md:flex md:flex-col md:w-full">
 	<Header />
 	<Sidebar />
 	<main class="flex min-h-screen w-full items-center justify-center">
 		<slot />
 	</main>
 	<Footer />
-{:else}
-	<main class="flex min-h-[100dvh] w-full flex-col items-center justify-center gap-5">
-		<Icon name="phoneOff" class="w-9 h-9 fill-none text-secondary-foreground" />
-		<div class="flex flex-col text-center gap-2">
-			<h1 class="text-secondary-foreground">Seems like you're on mobile</h1>
-			<p class="text-muted-foreground text-sm leading-relaxed">
-				Haptic isn't yet supported on mobile devices.<br />Please try again on a desktop.
-			</p>
+</div>
+
+<!-- Mobile layout -->
+<div class="flex md:hidden flex-col w-full min-h-[100dvh]">
+	<!-- Mobile header -->
+	<div
+		class="fixed top-0 left-0 right-0 h-12 border-b bg-background z-40 flex items-center justify-between px-3"
+	>
+		<button
+			class="h-8 w-8 flex items-center justify-center rounded-md hover:bg-accent fill-muted-foreground hover:fill-foreground transition-all"
+			on:click={() => {
+				if ($activeFile && $mobileView === 'editor') {
+					mobileView.set('files');
+				} else {
+					mobileSidebarOpen.set(true);
+				}
+			}}
+		>
+			{#if $activeFile && $mobileView === 'editor'}
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M19 12H5" />
+					<polyline points="12 19 5 12 12 5" />
+				</svg>
+			{:else}
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="3" y1="6" x2="21" y2="6" />
+					<line x1="3" y1="12" x2="21" y2="12" />
+					<line x1="3" y1="18" x2="21" y2="18" />
+				</svg>
+			{/if}
+		</button>
+		<p class="text-sm font-medium text-foreground/85 truncate mx-2">
+			{$collection?.split('/').pop() || 'Haptic'}
+		</p>
+		<div class="flex items-center gap-1">
+			<button
+				class="h-8 w-8 flex items-center justify-center rounded-md hover:bg-accent fill-muted-foreground hover:fill-foreground transition-all"
+				on:click={() => {
+					document.dispatchEvent(new KeyboardEvent('keydown', { key: 'o', metaKey: true }));
+				}}
+			>
+				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+				</svg>
+			</button>
+			<button
+				class="h-8 w-8 flex items-center justify-center rounded-md hover:bg-accent fill-muted-foreground hover:fill-foreground transition-all"
+				on:click={() => {
+					document.dispatchEvent(new KeyboardEvent('keydown', { key: ',', metaKey: true }));
+				}}
+			>
+				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="12" cy="12" r="3" />
+					<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+				</svg>
+			</button>
 		</div>
+	</div>
+
+	<!-- Mobile content area -->
+	<main
+		class="flex-1 pt-12 pb-14 w-full overflow-y-auto"
+	>
+		<slot />
 	</main>
-{/if}
+
+	<MobileNav />
+</div>
 
 <style>
 	/* Custom scrollbar */

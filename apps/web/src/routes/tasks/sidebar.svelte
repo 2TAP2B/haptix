@@ -66,9 +66,10 @@
 	};
 </script>
 
+<!-- Desktop fixed sidebar -->
 <div
 	class={cn(
-		'fixed left-12 h-[calc(100vh-4.5rem)] flex flex-col justify-start items-center bg-background overflow-y-auto transform transition-transform duration-300',
+		'hidden md:flex fixed left-12 h-[calc(100vh-4.5rem)] flex-col justify-start items-center bg-background overflow-y-auto transform transition-transform duration-300',
 		!$isPageSidebarOpen && '-translate-x-52'
 	)}
 	style={`width: ${$pageSidebarWidth}px`}
@@ -83,6 +84,17 @@
 	<!-- Tasks -->
 	<div
 		class="flex flex-col items-start gap-1 w-full px-2 h-full overflow-auto pt-2 pb-4"
+		data-collection-root
+		data-path={$collection}
+	>
+		<TaskEntries />
+	</div>
+</div>
+
+<!-- Mobile inline sidebar (rendered inside drawer) -->
+<div class="flex md:hidden flex-col w-full h-full bg-background overflow-y-auto">
+	<div
+		class="flex flex-col items-start gap-1 w-full px-3 h-full overflow-auto pt-3 pb-4"
 		data-collection-root
 		data-path={$collection}
 	>
